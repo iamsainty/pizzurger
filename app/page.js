@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { setCookie } from "cookies-next";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,19 +22,80 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner"; // Assuming you are using Sonner toast
 
 export default function Home() {
+  const router = useRouter();
   const [accountType, setAccountType] = useState("customer");
   const [chefSpeciality, setChefSpeciality] = useState("");
   const [loginAccountType, setLoginAccountType] = useState("customer");
 
-  const handleLogin = () => {
-    // TODO: Implement login logic
-    console.log("Login as:", loginAccountType);
+  // Login form state
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+
+  // Register form state
+  const [registerName, setRegisterName] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      const res = await fetch(`/api/${loginAccountType}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: loginEmail,
+          password: loginPassword,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.token) {
+        setCookie("token", data.token, { maxAge: 60 * 60 }); // 1 hour
+        router.push(`/${loginAccountType}`);
+      } else {
+        toast.error(data.message || "Login failed");
+      }
+    } catch (error) {
+      toast.error("Something went wrong!");
+    }
   };
 
-  const handleRegister = () => {
-    // TODO: Implement register logic
+  const handleRegister = async () => {
+    try {
+      const bodyData =
+        accountType === "chef"
+          ? {
+              name: registerName,
+              email: registerEmail,
+              password: registerPassword,
+              speciality: chefSpeciality,
+            }
+          : {
+              name: registerName,
+              email: registerEmail,
+              password: registerPassword,
+            };
+
+      const res = await fetch(`/api/${accountType}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyData),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.token) {
+        setCookie("token", data.token, { maxAge: 60 * 60 }); // 1 hour
+        router.push(`/${accountType}`);
+      } else {
+        toast.error(data.message || "Registration failed");
+      }
+    } catch (error) {
+      toast.error("Something went wrong!");
+    }
   };
 
   return (
@@ -64,6 +127,8 @@ export default function Home() {
                   id="login-email"
                   type="email"
                   placeholder="example@domain.com"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
                 />
               </div>
               <div className="space-y-1">
@@ -72,6 +137,8 @@ export default function Home() {
                   id="login-password"
                   type="password"
                   placeholder="••••••••"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
                 />
               </div>
               <div className="space-y-1">
@@ -108,7 +175,13 @@ export default function Home() {
             <CardContent className="space-y-4">
               <div className="space-y-1">
                 <Label htmlFor="register-name">Name</Label>
-                <Input id="register-name" type="text" placeholder="John Doe" />
+                <Input
+                  id="register-name"
+                  type="text"
+                  placeholder="John Doe"
+                  value={registerName}
+                  onChange={(e) => setRegisterName(e.target.value)}
+                />
               </div>
               <div className="space-y-1">
                 <Label htmlFor="register-email">Email</Label>
@@ -116,6 +189,8 @@ export default function Home() {
                   id="register-email"
                   type="email"
                   placeholder="example@domain.com"
+                  value={registerEmail}
+                  onChange={(e) => setRegisterEmail(e.target.value)}
                 />
               </div>
               <div className="space-y-1">
@@ -124,6 +199,8 @@ export default function Home() {
                   id="register-password"
                   type="password"
                   placeholder="Create a strong password"
+                  value={registerPassword}
+                  onChange={(e) => setRegisterPassword(e.target.value)}
                 />
               </div>
               <div className="space-y-1">
