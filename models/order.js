@@ -13,12 +13,9 @@ const orderSchema = new mongoose.Schema({
   },
   chefId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Chef",
-    required: true,
   },
   orderDescription: {
     type: String,
-    required: true,
   },
   item: {
     type: String,
@@ -33,24 +30,11 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  toppings: [
-    {
-      topping: {
-        type: String,
-        enum: [
-          "cheese",
-          "mushroom",
-          "olives",
-          "onions",
-          "peppers",
-          "tomatoes",
-          "chicken",
-          "sausage",
-        ],
-        required: true,
-      },
-    },
-  ],
+  toppings: {
+    type: [String],
+    default: [],
+  },
+
   quantity: {
     type: Number,
     required: true,
@@ -75,6 +59,6 @@ const orderSchema = new mongoose.Schema({
   },
 });
 
-const Order = mongoose.model("Order", orderSchema);
+const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
 
 module.exports = Order;

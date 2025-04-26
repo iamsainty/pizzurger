@@ -40,6 +40,6 @@ const chefSchema = new mongoose.Schema({
   },
 });
 
-const Chef = mongoose.model("Chef", chefSchema);
+const Chef = mongoose.models.Chef || mongoose.model("Chef", chefSchema);
 
 module.exports = Chef;

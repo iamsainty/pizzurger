@@ -41,15 +41,30 @@ const PlaceOrder = () => {
 
   useEffect(() => {
     if (item) {
-      setPrice(itemPrices[item] * quantity); // Set the price based on selected item and quantity
+      // Adjust price when item or quantity changes
+      setPrice(itemPrices[item] * quantity + calculateToppingPrice());
     }
-  }, [item, quantity]);
+  }, [item, quantity, toppings]);
+
+  const calculateToppingPrice = () => {
+    return toppings.reduce((acc, topping) => acc + toppingPrices[topping], 0);
+  };
 
   const handlePlaceOrder = async () => {
     const token = getCookie("token");
 
     if (!token) {
       router.push("/");
+      return;
+    }
+
+    if (!orderDescription.trim()) {
+      alert("Order description cannot be blank!");
+      return;
+    }
+
+    if (quantity < 1) {
+      alert("Quantity must be at least 1!");
       return;
     }
 
@@ -80,32 +95,18 @@ const PlaceOrder = () => {
   };
 
   const handleToppingChange = (topping) => {
-    setToppings(
-      (prevToppings) =>
-        prevToppings.includes(topping)
-          ? prevToppings.filter((t) => t !== topping) // Remove topping if already selected
-          : [...prevToppings, topping] // Add topping if not already selected
+    setToppings((prevToppings) =>
+      prevToppings.includes(topping)
+        ? prevToppings.filter((t) => t !== topping)
+        : [...prevToppings, topping]
     );
   };
 
   useEffect(() => {
-    if (item) {
-      const availableToppings = Object.keys(toppingPrices).filter((topping) =>
-        item === "veg-pizza" || item === "non-veg-pizza"
-          ? true
-          : topping !== "chicken" && topping !== "sausage"
-      );
-      setAvailableToppings(availableToppings); // Filter available toppings based on the item
-    }
+    // Adjust available toppings based on item selection
+    const available = item === "burger" ? [] : Object.keys(toppingPrices);
+    setAvailableToppings(available);
   }, [item]);
-
-  useEffect(() => {
-    const toppingsPrice = toppings.reduce(
-      (acc, topping) => acc + toppingPrices[topping],
-      0
-    );
-    setPrice((itemPrices[item] || 0) * quantity + toppingsPrice);
-  }, [toppings, item, quantity]);
 
   return (
     <div className="flex flex-col gap-6 items-center justify-center min-h-screen p-6">
@@ -147,25 +148,27 @@ const PlaceOrder = () => {
           />
         </div>
 
-        <div className="mb-4">
-          <h3 className="font-semibold text-lg text-gray-700">
-            Select Toppings:
-          </h3>
-          <div className="flex gap-4 flex-wrap">
-            {availableToppings.map((topping) => (
-              <label key={topping} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  value={topping}
-                  checked={toppings.includes(topping)}
-                  onChange={() => handleToppingChange(topping)}
-                  className="w-5 h-5"
-                />
-                <span className="text-gray-700">{topping}</span>
-              </label>
-            ))}
+        {availableToppings.length > 0 && (
+          <div className="mb-4">
+            <h3 className="font-semibold text-lg text-gray-700">
+              Select Toppings:
+            </h3>
+            <div className="flex gap-4 flex-wrap">
+              {availableToppings.map((topping) => (
+                <label key={topping} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    value={topping}
+                    checked={toppings.includes(topping)}
+                    onChange={() => handleToppingChange(topping)}
+                    className="w-5 h-5"
+                  />
+                  <span className="text-gray-700">{topping}</span>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-gray-700">
