@@ -12,7 +12,7 @@ const Dashboard = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const token = getCookie("token");
+    const token = getCookie("customerToken");
 
     if (!token) {
       router.push("/login");

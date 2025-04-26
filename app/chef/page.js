@@ -12,7 +12,7 @@ const ChefDashboard = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const token = getCookie("token");
+    const token = getCookie("chefToken");
 
     if (!token) {
       router.push("/login");

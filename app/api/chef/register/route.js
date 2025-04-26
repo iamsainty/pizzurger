@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 
 export async function POST(req) {
   try {
+    const JWT_SECRET = "hello";
     const { name, email, password, speciality } = await req.json();
     await connectToMongo();
 
@@ -29,7 +30,7 @@ export async function POST(req) {
 
     const token = jwt.sign(
       { id: newChef._id, email: newChef.email },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: "1h" }
     );
 
@@ -38,6 +39,7 @@ export async function POST(req) {
       { status: 201 }
     );
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }

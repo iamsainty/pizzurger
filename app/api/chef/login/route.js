@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 
 export async function POST(req) {
     try {
+        const JWT_SECRET = 'hello';
         const { email, password } = await req.json();
         await connectToMongo();
 
@@ -23,7 +24,7 @@ export async function POST(req) {
 
         const token = jwt.sign(
             { id: chef._id, email: chef.email },
-            process.env.JWT_SECRET,
+            JWT_SECRET,
             { expiresIn: "1h" }
         );
 

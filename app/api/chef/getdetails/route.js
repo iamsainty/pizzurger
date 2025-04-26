@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { connectToDB } from "@/lib/db";
 import Chef from "@/models/chef";
+import { connectToMongo } from "@/lib/connectDB";
 
 export async function GET(req) {
   try {
@@ -14,7 +14,7 @@ export async function GET(req) {
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, "hello");
 
-    await connectToDB();
+    await connectToMongo();
 
     const chef = await Chef.findById(decoded.id).select("-password");
 

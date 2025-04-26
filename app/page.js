@@ -53,7 +53,9 @@ export default function Home() {
       const data = await res.json();
 
       if (res.ok && data.token) {
-        setCookie("token", data.token, { maxAge: 60 * 60 }); // 1 hour
+        const tokenName =
+          loginAccountType === "customer" ? "customerToken" : "chefToken";
+        setCookie(tokenName, data.token, { maxAge: 60 * 60 }); // 1 hour
         router.push(`/${loginAccountType}`);
       } else {
         toast.error(data.message || "Login failed");
@@ -88,7 +90,9 @@ export default function Home() {
       const data = await res.json();
 
       if (res.ok && data.token) {
-        setCookie("token", data.token, { maxAge: 60 * 60 }); // 1 hour
+        const tokenName =
+          accountType === "customer" ? "customerToken" : "chefToken";
+        setCookie(tokenName, data.token, { maxAge: 60 * 60 }); // 1 hour
         router.push(`/${accountType}`);
       } else {
         toast.error(data.message || "Registration failed");

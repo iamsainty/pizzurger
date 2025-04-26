@@ -51,7 +51,7 @@ const PlaceOrder = () => {
   };
 
   const handlePlaceOrder = async () => {
-    const token = getCookie("token");
+    const token = getCookie("customerToken");
 
     if (!token) {
       router.push("/");
